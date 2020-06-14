@@ -1,0 +1,6 @@
+flask
+request
+jsonify
+pytest
+pytest-pep8
+requests
