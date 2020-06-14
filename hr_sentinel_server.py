@@ -1,6 +1,7 @@
 # hr_sentinel_server.py
 
 from flask import Flask, request, jsonify
+import logging
 
 app = Flask(__name__)
 attending_db = list()
@@ -11,6 +12,7 @@ def add_new_attending(username_id, email, phone):
                      "attending_email": email,
                      "attending_phone": phone}
     attending_db.append(new_attending)
+    print(attending_db)
     return True
 
 
@@ -36,6 +38,23 @@ def post_new_attending():
                                   new_dict["attending_email"],
                                   new_dict["attending_phone"])
     if attending is True:
-        return "New Attending Physician Successfully Added!", 200
+        logging.info("New Attending Physician Added!")
+        logging.info("Physician User Name: {}".format(
+                    new_dict["attending_username"]))
+        logging.info("Physician Email: {}".format(
+                    new_dict["attending_email"]))
+        return "New Attending Physician Successfully Added", 200
     else:
         return "Failed to Add New Attending Physician", 400
+
+
+def start_logging():
+    logging.basicConfig(filename='my_log.log', filemode='w',
+                        level=logging.DEBUG)
+    logging.info("-----New Run-----\n")
+    return True
+
+
+if __name__ == '__main__':
+    start_logging()
+    app.run()

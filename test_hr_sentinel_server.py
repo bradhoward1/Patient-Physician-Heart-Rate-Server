@@ -29,3 +29,10 @@ def test_validate_new_attending(result, expected):
     from hr_sentinel_server import validate_new_attending
     answer = validate_new_attending(result)
     assert answer == expected
+
+
+def test_start_logging():
+    from hr_sentinel_server import start_logging
+    answer = start_logging()
+    expected = True
+    assert answer == expected
