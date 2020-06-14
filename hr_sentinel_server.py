@@ -5,6 +5,7 @@ import logging
 
 app = Flask(__name__)
 attending_db = list()
+patient_hr_db = list()
 
 
 def add_new_attending(username_id, email, phone):
@@ -66,6 +67,22 @@ def validate_incoming_heart_rate(in_dict):
         except ValueError:
             return "{} is the wrong value type".format(key)
     return True
+
+
+def add_patient_hr(patient_id, heart_rate):
+    if not any(patient["patient_id"] == patient_id
+               for patient in patient_hr_db):
+        new_patient = {"patient_id": patient_id,
+                       "heart_rate": [heart_rate]}
+        patient_hr_db.append(new_patient)
+        return "New Patient Added to Track HR"
+    else:
+        for patient in patient_hr_db:
+            if patient["patient_id"] != patient_id:
+                continue
+            elif patient["patient_id"] is patient_id:
+                patient["heart_rate"].append(heart_rate)
+                return "Current Patient Edited: Added New HR"
 
 
 if __name__ == '__main__':
