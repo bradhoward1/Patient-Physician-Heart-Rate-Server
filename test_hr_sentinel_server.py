@@ -36,3 +36,28 @@ def test_start_logging():
     answer = start_logging()
     expected = True
     assert answer == expected
+
+
+@pytest.mark.parametrize("result, expected",
+                         [({"patient_id": "1",
+                            "heart_rate": 100}, True),
+                          ({"patient_id": 1,
+                            "heart_rate": 100}, True),
+                          ({"patient_id": "1",
+                            "heart_rate": "100"}, True),
+                          ({"patient_id": "1a",
+                            "heart_rate": 100}, 'patient_id'
+                          ' is the wrong value type'),
+                          ({"patient_id": "1",
+                            "heart_rate": "10a0"}, 'heart_rate'
+                          ' is the wrong value type'),
+                          ({"patient_": "1",
+                            "heart_rate": 100}, 'patient_id'
+                          ' key not found'),
+                          ({"patient_id": "1",
+                            "heart_ra": 100}, 'heart_rate'
+                          ' key not found')])
+def test_validate_incoming_heart_rate(result, expected):
+    from hr_sentinel_server import validate_incoming_heart_rate
+    answer = validate_incoming_heart_rate(result)
+    assert answer == expected

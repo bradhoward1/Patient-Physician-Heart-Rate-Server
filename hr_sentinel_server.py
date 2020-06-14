@@ -55,6 +55,19 @@ def start_logging():
     return True
 
 
+def validate_incoming_heart_rate(in_dict):
+    expected_keys = ("patient_id", "heart_rate")
+    expected_types = (int, int)
+    for key, types in zip(expected_keys, expected_types):
+        if key not in in_dict.keys():
+            return "{} key not found".format(key)
+        try:
+            in_dict[key] = int(in_dict[key])
+        except ValueError:
+            return "{} is the wrong value type".format(key)
+    return True
+
+
 if __name__ == '__main__':
     start_logging()
     app.run()
