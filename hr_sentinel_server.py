@@ -24,3 +24,18 @@ def validate_new_attending(new_dict):
         if type(new_dict[key]) != types:
             return "{} key is the wrong value type".format(key)
     return True
+
+
+@app.route("/api/new_attending", methods=["POST"])
+def post_new_attending():
+    new_dict = request.get_json()
+    validate = validate_new_attending(new_dict)
+    if validate is not True:
+        return validate, 400
+    attending = add_new_attending(new_dict["attending_username"],
+                                  new_dict["attending_email"],
+                                  new_dict["attending_phone"])
+    if attending is True:
+        return "New Attending Physician Successfully Added!", 200
+    else:
+        return "Failed to Add New Attending Physician", 400
