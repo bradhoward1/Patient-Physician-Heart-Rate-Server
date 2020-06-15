@@ -3,12 +3,35 @@
 from flask import Flask, request, jsonify
 import logging
 from datetime import datetime
+import requests
 
 
 app = Flask(__name__)
 attending_db = list()
 patient_hr_db = list()
 patient_db = []
+
+# patient_hr_db = [{"patient_id": 1,
+#                   "heart_rate": [80]},
+#                  {"patient_id": 2,
+#                   "heart_rate": [70, 80]},
+#                  {"patient_id": 3,
+#                   "heart_rate": [50, 60, 70]}]
+# patient_db = [{"patient_id": 1,
+#                 "attending_username": "Smith.J",
+#                 "patient_age": 50},
+#               {"patient_id": 2,
+#                 "attending_username": "Howard.B",
+#                 "patient_age": 25},
+#               {"patient_id": 3,
+#                    "attending_username": "Smith.J",
+#                    "patient_age": 32}]
+# attending_db = [{"attending_username": "Smith.J",
+#                  "attending_email": "smith@test.com",
+#                  "attending_phone": "919-867-5309"},
+#                 {"attending_username": "Howard.B",
+#                  "attending_email": "brad@test.com",
+#                  "attending_phone": "239-595-7067"}]
 
 
 def add_new_attending(username_id, email, phone):
@@ -139,13 +162,35 @@ def add_patient_hr(patient_id, heart_rate):
         patient_hr_db.append(new_patient)
         return "New Patient Added to Track HR"
     else:
-        for patient in patient_hr_db:
+        for patient, patient_name in zip(patient_hr_db, patient_db):
             if patient["patient_id"] != patient_id:
                 continue
             elif patient["patient_id"] is patient_id:
                 patient["heart_rate"].append(heart_rate)
                 patient["timestamp"] = string_recorded_datetime
+                age = patient_name["patient_age"]
+                result = is_tachycardic(age, heart_rate)
+                if result is True:
+                    attending_phys = patient_name["attending_username"]
+                    for attending in attending_db:
+                        if attending["attending_username"] is attending_phys:
+                            attending_email = attending["attending_email"]
+                            send_email(attending_email, patient_id)
+                        else:
+                            continue
                 return "Current Patient Edited: Added New HR"
+
+
+def send_email(attending_email, patient_id):
+    x = {
+         "from_email": "brad@test.com",
+         "to_email": attending_email,
+         "subject": "Update about patient " + str(patient_id),
+         "content": str(patient_id) + " is tachycardic"}
+    r = requests.post("http://vcm-7631.vm.duke.edu:5007/hrss/send_email",
+                      json=x)
+    print(r.status_code)
+    print(r.text)
 
 
 @app.route("/api/heart_rate", methods=["POST"])
@@ -164,6 +209,23 @@ def post_heart_rate():
         return "Current Patient Edited: Added New HR", 200
     else:
         return "Unable to add new heart rate data", 400
+
+
+def is_tachycardic(age, heart_rate):
+    if 1 <= age <= 2 and heart_rate > 151:
+        return True
+    elif 3 <= age <= 4 and heart_rate > 137:
+        return True
+    elif 5 <= age <= 7 and heart_rate > 133:
+        return True
+    elif 8 <= age <= 11 and heart_rate > 130:
+        return True
+    elif 12 <= age <= 15 and heart_rate > 119:
+        return True
+    elif age >= 15 and heart_rate > 100:
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':
