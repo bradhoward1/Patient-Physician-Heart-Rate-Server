@@ -237,6 +237,12 @@ def heart_rate_list(patient_list, patient_id):
     return hr_list
 
 
+@app.route("/api/heart_rate/<patient_id>", methods=["GET"])
+def get_heart_rate_list(patient_hr_db, patient_id):
+    hr_list = heart_rate_list(patient_hr_db, patient_id)
+    return jsonify(hr_list)
+
+
 if __name__ == '__main__':
     start_logging()
     app.run()
