@@ -274,6 +274,12 @@ def patient_status(patient_hr_db, patient_db, patient_id):
                 return out_dict
 
 
+@app.route("/api/status/<patient_id>", methods=["GET"])
+def get_patient_status(patient_hr_db, patient_db, patient_id):
+    status_dict = patient_status(patient_hr_db, patient_db, patient_id)
+    return jsonify(status_dict)
+
+
 if __name__ == '__main__':
     start_logging()
     app.run()
