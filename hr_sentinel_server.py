@@ -139,12 +139,14 @@ def add_patient_hr(patient_id, heart_rate):
         patient_hr_db.append(new_patient)
         return "New Patient Added to Track HR"
     else:
-        for patient in patient_hr_db:
+        for patient, patient_name in zip(patient_hr_db, patient_db):
             if patient["patient_id"] != patient_id:
                 continue
             elif patient["patient_id"] is patient_id:
                 patient["heart_rate"].append(heart_rate)
                 patient["timestamp"] = string_recorded_datetime
+                age = patient_name["patient_age"]
+                result = is_tachycardic(age, heart_rate)
                 return "Current Patient Edited: Added New HR"
 
 
@@ -164,6 +166,23 @@ def post_heart_rate():
         return "Current Patient Edited: Added New HR", 200
     else:
         return "Unable to add new heart rate data", 400
+
+
+def is_tachycardic(age, heart_rate):
+    if 1 <= age <= 2 and heart_rate > 151:
+        return True
+    elif 3 <= age <= 4 and heart_rate > 137:
+        return True
+    elif 5 <= age <= 7 and heart_rate > 133:
+        return True
+    elif 8 <= age <= 11 and heart_rate > 130:
+        return True
+    elif 12 <= age <= 15 and heart_rate > 119:
+        return True
+    elif age >= 15 and heart_rate > 100:
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':

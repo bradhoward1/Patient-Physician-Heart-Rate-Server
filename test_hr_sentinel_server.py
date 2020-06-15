@@ -3,14 +3,6 @@
 import pytest
 
 
-patient_hr_db = [{"patient_id": 1,
-                  "heart_rate": [80]},
-                 {"patient_id": 2,
-                  "heart_rate": [70, 80]},
-                 {"patient_id": 3,
-                  "heart_rate": [50, 60, 70]}]
-
-
 def test_add_new_attending():
     from hr_sentinel_server import add_new_attending
     input_name = "Howard.B"
@@ -127,4 +119,23 @@ def test_validate_incoming_heart_rate(result, expected):
 def test_add_patient_hr(result1, result2, expected):
     from hr_sentinel_server import add_patient_hr
     answer = add_patient_hr(result1, result2)
+    assert answer == expected
+
+
+@pytest.mark.parametrize("result1, result2, expected",
+                         [(1, 152, True),
+                          (1, 151, False),
+                          (3, 140, True),
+                          (3, 130, False),
+                          (6, 135, True),
+                          (7, 130, False),
+                          (9, 131, True),
+                          (9, 130, False),
+                          (13, 130, True),
+                          (13, 100, False),
+                          (33, 120, True),
+                          (33, 90, False)])
+def test_is_tachycardic(result1, result2, expected):
+    from hr_sentinel_server import is_tachycardic
+    answer = is_tachycardic(result1, result2)
     assert answer == expected
