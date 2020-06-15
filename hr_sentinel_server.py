@@ -173,11 +173,17 @@ def add_patient_hr(patient_id, heart_rate):
                 if result is True:
                     attending_phys = patient_name["attending_username"]
                     for attending in attending_db:
-                        if attending["attending_username"] is attending_phys:
-                            attending_email = attending["attending_email"]
-                            send_email(attending_email, patient_id)
-                        else:
+                        if attending["attending_username"] != attending_phys:
                             continue
+                        else:
+                            attending_email = attending["attending_email"]
+                            logging.info("Tachycardic heart rate identified")
+                            logging.info("Patient ID: {}".format(patient_id))
+                            logging.info("Patient Heart Rate"
+                                         ": {}".format(heart_rate))
+                            logging.info("Attending Physician Email"
+                                         ": {}".format(attending_email))
+                            send_email(attending_email, patient_id)
                 return "Current Patient Edited: Added New HR"
 
 
