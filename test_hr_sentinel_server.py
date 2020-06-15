@@ -139,3 +139,20 @@ def test_is_tachycardic(result1, result2, expected):
     from hr_sentinel_server import is_tachycardic
     answer = is_tachycardic(result1, result2)
     assert answer == expected
+
+
+def test_heart_rate_list():
+    from hr_sentinel_server import heart_rate_list
+    hr_db = [
+             {"patient_id": 1,
+              "heart_rate": [80, 90, 100, 120],
+              "timestamp": "string_recorded_datetime"},
+             {"patient_id": 2,
+              "heart_rate": [40, 50, 20],
+              "timestamp": "string_recorded_datetime"},
+             {"patient_id": 3,
+              "heart_rate": [60, 70, 50, 45],
+              "timestamp": "string_recorded_datetime"}]
+    answer = heart_rate_list(hr_db, 2)
+    expected = [40, 50, 20]
+    assert answer == expected

@@ -228,6 +228,24 @@ def is_tachycardic(age, heart_rate):
         return False
 
 
+def heart_rate_list(patient_list, patient_id):
+    for patient in patient_list:
+        if patient["patient_id"] != patient_id:
+            continue
+        elif patient["patient_id"] is patient_id:
+            hr_list = patient["heart_rate"]
+    return hr_list
+
+
+@app.route("/api/heart_rate/<patient_id>", methods=["GET"])
+def get_heart_rate_list(patient_hr_db, patient_id):
+    hr_list = heart_rate_list(patient_hr_db, patient_id)
+    if hr_list:
+        return jsonify(hr_list), 200
+    else:
+        return "Heart Rate List not able to be returned", 400
+
+
 if __name__ == '__main__':
     start_logging()
     app.run()
