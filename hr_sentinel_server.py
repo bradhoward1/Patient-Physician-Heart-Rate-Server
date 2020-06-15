@@ -185,8 +185,8 @@ def send_email(attending_email, patient_id):
     x = {
          "from_email": "brad@test.com",
          "to_email": attending_email,
-         "subject": "Update about patient " + patient_id,
-         "content": patient_id + " is tachycardic"}
+         "subject": "Update about patient " + str(patient_id),
+         "content": str(patient_id) + " is tachycardic"}
     r = requests.post("http://vcm-7631.vm.duke.edu:5007/hrss/send_email",
                       json=x)
     print(r.status_code)
