@@ -228,6 +228,15 @@ def is_tachycardic(age, heart_rate):
         return False
 
 
+def heart_rate_list(patient_list, patient_id):
+    for patient in patient_list:
+        if patient["patient_id"] != patient_id:
+            continue
+        elif patient["patient_id"] is patient_id:
+            hr_list = patient["heart_rate"]
+    return hr_list
+
+
 if __name__ == '__main__':
     start_logging()
     app.run()
