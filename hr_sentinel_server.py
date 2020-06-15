@@ -277,7 +277,10 @@ def patient_status(patient_hr_db, patient_db, patient_id):
 @app.route("/api/status/<patient_id>", methods=["GET"])
 def get_patient_status(patient_hr_db, patient_db, patient_id):
     status_dict = patient_status(patient_hr_db, patient_db, patient_id)
-    return jsonify(status_dict)
+    if status_dict:
+        return jsonify(status_dict), 200
+    else:
+        return "Patient Status not able to be returned", 400
 
 
 if __name__ == '__main__':
