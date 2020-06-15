@@ -2,6 +2,8 @@
 
 from flask import Flask, request, jsonify
 import logging
+from datetime import datetime
+
 
 app = Flask(__name__)
 attending_db = list()
@@ -70,10 +72,14 @@ def validate_incoming_heart_rate(in_dict):
 
 
 def add_patient_hr(patient_id, heart_rate):
+    recorded_datetime = datetime.now()
+    string_recorded_datetime = datetime.strftime(
+            recorded_datetime,  "%m-%d-%y %H:%M:%S")
     if not any(patient["patient_id"] == patient_id
                for patient in patient_hr_db):
         new_patient = {"patient_id": patient_id,
-                       "heart_rate": [heart_rate]}
+                       "heart_rate": [heart_rate],
+                       "timestamp": string_recorded_datetime}
         patient_hr_db.append(new_patient)
         return "New Patient Added to Track HR"
     else:
@@ -82,7 +88,26 @@ def add_patient_hr(patient_id, heart_rate):
                 continue
             elif patient["patient_id"] is patient_id:
                 patient["heart_rate"].append(heart_rate)
+                patient["timestamp"] = string_recorded_datetime
                 return "Current Patient Edited: Added New HR"
+
+
+@app.route("/api/heart_rate", methods=["POST"])
+def post_heart_rate():
+    new_dict = request.get_json()
+    validate = validate_incoming_heart_rate(new_dict)
+    if validate is not True:
+        return validate, 400
+    new_heart_rate = add_patient_hr(new_dict["patient_id"],
+                                    new_dict["heart_rate"])
+    if new_heart_rate == "New Patient Added to Track HR":
+        logging.info("New Patient Added to Track HR")
+        return "New Patient Added to Track HR", 200
+    elif new_heart_rate == "Current Patient Edited: Added New HR":
+        logging.info("Current Patient Edited: Added New HR")
+        return "Current Patient Edited: Added New HR", 200
+    else:
+        return "Unable to add new heart rate data", 400
 
 
 if __name__ == '__main__':
