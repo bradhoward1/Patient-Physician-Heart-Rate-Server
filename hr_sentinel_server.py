@@ -240,7 +240,10 @@ def heart_rate_list(patient_list, patient_id):
 @app.route("/api/heart_rate/<patient_id>", methods=["GET"])
 def get_heart_rate_list(patient_hr_db, patient_id):
     hr_list = heart_rate_list(patient_hr_db, patient_id)
-    return jsonify(hr_list)
+    if hr_list:
+        return jsonify(hr_list), 200
+    else:
+        return "Heart Rate List not able to be returned", 400
 
 
 if __name__ == '__main__':
