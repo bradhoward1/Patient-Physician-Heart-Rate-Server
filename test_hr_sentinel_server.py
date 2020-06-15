@@ -156,3 +156,59 @@ def test_heart_rate_list():
     answer = heart_rate_list(hr_db, 2)
     expected = [40, 50, 20]
     assert answer == expected
+
+
+def test_patient_status_tachycardic():
+    from hr_sentinel_server import patient_status
+    patient_hr_db = [{"patient_id": 1,
+                      "heart_rate": [80, 90, 160],
+                      "timestamp": "2018-03-09 11:00:36"},
+                     {"patient_id": 2,
+                      "heart_rate": [70, 80],
+                      "timestamp": "2020-07-10 1:30:50"},
+                     {"patient_id": 3,
+                      "heart_rate": [50, 60, 70],
+                      "timestamp": "2018-03-09 11:00:36"}]
+    patient_db = [{"patient_id": 1,
+                   "attending_username": "Smith.J",
+                   "patient_age": 50},
+                  {"patient_id": 2,
+                   "attending_username": "Howard.B",
+                   "patient_age": 25},
+                  {"patient_id": 3,
+                   "attending_username": "Smith.J",
+                   "patient_age": 32}]
+    answer = patient_status(patient_hr_db, patient_db, 1)
+    expected = {"heart_rate": 160,
+                "status": "tachycardic",
+                "timestamp": "2018-03-09 11:00:36"}
+    assert answer == expected
+
+
+def test_patient_status_not_tachycardic():
+    from hr_sentinel_server import patient_status
+    patient_hr_db = [
+                     {"patient_id": 1,
+                      "heart_rate": [80, 90, 160],
+                      "timestamp": "2018-03-09 11:00:36"},
+                     {"patient_id": 2,
+                      "heart_rate": [70, 80],
+                      "timestamp": "2020-07-10 1:30:50"},
+                     {"patient_id": 3,
+                      "attending_username": "Smith.J",
+                      "patient_age": 32}
+                    ]
+    patient_db = [{"patient_id": 1,
+                   "attending_username": "Smith.J",
+                   "patient_age": 50},
+                  {"patient_id": 2,
+                   "attending_username": "Howard.B",
+                   "patient_age": 25},
+                  {"patient_id": 3,
+                   "attending_username": "Smith.J",
+                   "patient_age": 32}]
+    answer = patient_status(patient_hr_db, patient_db, 2)
+    expected = {"heart_rate": 80,
+                "status": "not tachycardic",
+                "timestamp": "2020-07-10 1:30:50"}
+    assert answer == expected
