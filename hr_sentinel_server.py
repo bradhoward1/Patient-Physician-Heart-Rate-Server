@@ -158,7 +158,7 @@ def add_patient_hr(patient_id, heart_rate):
                for patient in patient_hr_db):
         new_patient = {"patient_id": patient_id,
                        "heart_rate": [heart_rate],
-                       "timestamp": string_recorded_datetime}
+                       "timestamp": [string_recorded_datetime]}
         patient_hr_db.append(new_patient)
         return "New Patient Added to Track HR"
     else:
@@ -167,7 +167,7 @@ def add_patient_hr(patient_id, heart_rate):
                 continue
             elif patient["patient_id"] is patient_id:
                 patient["heart_rate"].append(heart_rate)
-                patient["timestamp"] = string_recorded_datetime
+                patient["timestamp"].append(string_recorded_datetime)
                 age = patient_name["patient_age"]
                 result = is_tachycardic(age, heart_rate)
                 if result is True:
@@ -187,16 +187,32 @@ def add_patient_hr(patient_id, heart_rate):
                 return "Current Patient Edited: Added New HR"
 
 
-def send_email(attending_email, patient_id):
-    x = {
-         "from_email": "brad@test.com",
-         "to_email": attending_email,
-         "subject": "Update about patient " + str(patient_id),
-         "content": str(patient_id) + " is tachycardic"}
-    r = requests.post("http://vcm-7631.vm.duke.edu:5007/hrss/send_email",
-                      json=x)
-    print(r.status_code)
-    print(r.text)
+def avg_hr_calc(patient_hr_db, patient_id, time):
+    patient_id = int(patient_id)
+    for patient in patient_hr_db:
+        if patient_id == patient["patient_id"]:
+            timestamp = patient["timestamp"].index(time)
+            hr_vals = patient["heart_rate"]
+            hr_vals = hr_vals.reverse()
+            indicator = len(patient["heart_rate"]) - timestamp
+            relevant_hr = patient["heart_rate"][:indicator]
+            avg_hr = sum(relevant_hr) / len(relevant_hr)
+            return avg_hr, True
+        else:
+            continue
+
+
+@app.route("/api/heart_rate/interval_average", methods=["POST"])
+def post_hr_avg():
+    new_dict = request.get_json()
+    patient_id = new_dict["patient_id"]
+    timestampOI = new_dict["heart_rate_average_since"]
+    # patient_hr_db should be of global scope
+    validate = avg_hr_calc(patient_hr_db, patient_id, timestampOI)
+    if validate[1] is not True:
+        return validate, 400
+    else:
+        return validate[0]
 
 
 @app.route("/api/heart_rate", methods=["POST"])
