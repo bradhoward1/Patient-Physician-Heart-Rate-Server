@@ -143,6 +143,27 @@ def test_avg_hr_calc():
     assert answer == expected
 
 
+def test_total_hr_avg():
+    from hr_sentinel_server import total_hr_avg
+    patient_hr_db = [{"patient_id": 1,
+                      "heart_rate": [80, 90, 160],
+                      "timestamp": ["2018-03-09 11:00:36",
+                                    "2018-03-09 11:10:36",
+                                    "2018-03-09 11:20:36"]},
+                     {"patient_id": 2,
+                      "heart_rate": [70, 80],
+                      "timestamp": ["2020-07-10 1:30:50",
+                                    "2020-07-10 1:50:50"]},
+                     {"patient_id": 3,
+                      "heart_rate": [50, 60, 70],
+                      "timestamp": ["2018-03-09 11:00:36",
+                                    "2018-03-09 11:20:36",
+                                    "2018-03-09 11:50:36"]}]
+    answer = total_hr_avg(patient_hr_db, 3)
+    expected = {"Average heart rate": 60}, True
+    assert answer == expected
+
+
 @pytest.mark.parametrize("result1, result2, expected",
                          [(1, 152, True),
                           (1, 151, False),
