@@ -317,22 +317,23 @@ def get_patient_status(patient_id):
         return "Patient Status not able to be returned", 400
 
 
-def total_hr_avg(patient_hr_db, patient_id):
+def total_hr_avg(patient_id):
     patient_id = int(patient_id)
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
             hr_vals = patient["heart_rate"]
             avg_hr = sum(hr_vals) / len(hr_vals)
             out_dict = {"Average heart rate": avg_hr}
-            return out_dict, True
+            return out_dict
         else:
             continue
 
 
 @app.route("/api/heart_rate/average/<patient_id>", methods=["GET"])
-def get_hr_avg(patient_hr_db, patient_db, patient_id):
-    status_dict = total_hr_avg(patient_hr_db, patient_id)
+def get_hr_avg(patient_id):
+    status_dict = total_hr_avg(patient_id)
     if status_dict:
+        print(status_dict)
         return jsonify(status_dict), 200
     else:
         return "Patient's average heart rate not able to be returned", 400

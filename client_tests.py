@@ -87,3 +87,12 @@ print("{}, {}".format(r.text, r.status_code))
 
 r = requests.get("http://127.0.0.1:5000/api/heart_rate/2")
 print("{}, {}".format(r.text, r.status_code))
+
+# Testing /api/heart_rate_average/<patient_id>
+
+r = requests.get("http://127.0.0.1:5000/api/heart_rate/average/1")
+print("{}, {}".format(r.text, r.status_code))
+
+r = requests.get("http://127.0.0.1:5000/api/heart_rate/average/2")
+print("{}, {}".format(r.text, r.status_code))
+
