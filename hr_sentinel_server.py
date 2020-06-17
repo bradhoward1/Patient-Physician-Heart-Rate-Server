@@ -11,27 +11,39 @@ attending_db = list()
 patient_hr_db = list()
 patient_db = []
 
-# patient_hr_db = [{"patient_id": 1,
-#                   "heart_rate": [80]},
-#                  {"patient_id": 2,
-#                   "heart_rate": [70, 80]},
-#                  {"patient_id": 3,
-#                   "heart_rate": [50, 60, 70]}]
-# patient_db = [{"patient_id": 1,
-#                 "attending_username": "Smith.J",
-#                 "patient_age": 50},
-#               {"patient_id": 2,
-#                 "attending_username": "Howard.B",
-#                 "patient_age": 25},
-#               {"patient_id": 3,
-#                    "attending_username": "Smith.J",
-#                    "patient_age": 32}]
-# attending_db = [{"attending_username": "Smith.J",
-#                  "attending_email": "smith@test.com",
-#                  "attending_phone": "919-867-5309"},
-#                 {"attending_username": "Howard.B",
-#                  "attending_email": "brad@test.com",
-#                  "attending_phone": "239-595-7067"}]
+
+patient_hr_db = [{"patient_id": 1,
+                  "heart_rate": [80, 90, 160],
+                  "timestamp": ["2018-03-09 11:00:36",
+                                "2018-03-09 11:10:36",
+                                "2018-03-09 11:20:36"]},
+                 {"patient_id": 2,
+                  "heart_rate": [70, 80],
+                  "timestamp": ["2020-07-10 1:30:50",
+                                "2020-07-10 1:50:50"]},
+                 {"patient_id": 3,
+                  "heart_rate": [50, 60, 70],
+                  "timestamp": ["2018-03-09 11:00:36",
+                                "2018-03-09 11:20:36",
+                                "2018-03-09 11:50:36"]}]
+patient_db = [{"patient_id": 1,
+               "attending_username": "Smith.J",
+               "patient_age": 50},
+              {"patient_id": 2,
+               "attending_username": "Howard.B",
+               "patient_age": 25},
+              {"patient_id": 3,
+               "attending_username": "Smith.J",
+               "patient_age": 32}]
+attending_db = [{"attending_username": "Smith.J",
+                 "attending_email": "smith@test.com",
+                 "attending_phone": "919-867-5309"},
+                {"attending_username": "Howard.B",
+                 "attending_email": "brad@test.com",
+                 "attending_phone": "239-595-7067"},
+                {"patient_id": 3,
+                 "attending_username": "Smith.J",
+                 "patient_age": 32}]
 
 
 def add_new_attending(username_id, email, phone):
@@ -318,6 +330,51 @@ def get_hr_avg(patient_hr_db, patient_db):
         return jsonify(status_dict), 200
     else:
         return "Patient's average heart rate not able to be returned", 400
+
+
+def attending_patients(patient_db, attending_username, patient_hr_db):
+    attending_patient_list = []
+    for patient in patient_db:
+        out_dict = {"patient_id": 0, "last_heart_rate": 0,
+                    "last_time": "", "status": ""}
+        out_dict["patient_id"] = patient["patient_id"]
+        # I think age is in the right place- needs to update each i
+        age = patient["patient_age"]
+        if attending_username == patient["attending_username"]:
+            x = patient["patient_id"]
+            for patient in patient_hr_db:
+                if x == patient["patient_id"]:
+                    index = len(patient["heart_rate"]) - 1
+                    out_dict["last_heart_rate"] = patient["heart_rate"][index]
+                    out_dict["last_time"] = patient["timestamp"][index]
+                    result = is_tachycardic(age, out_dict["last_heart_rate"])
+                    if result is True:
+                        out_dict["status"] = "tachycardic"
+                    else:
+                        out_dict["status"] = "not tachycardic"
+            attending_patient_list.append(out_dict)
+    # should be global scope of attending_db
+    attending_check = []
+    for attending in attending_db:
+        if attending_username == attending["attending_username"]:
+            attending_check.append("Exists")
+    print(len(attending_check))
+    if len(attending_check) == 0:
+        return False, "Attending Physician does not exist in the database"
+    print(attending_patient_list)
+    return True, attending_patient_list
+
+
+@app.route("/api/patients/<attending_username>", methods=["GET"])
+def get_attending_username(patient_db, attending_username, patient_hr_db):
+    status_dict = attending_patients(patient_db, attending_username,
+                                     patient_hr_db)
+    # First element is "True", Second element is the dictionary
+    if status_dict[0] is true:
+        return jsonify(status_dict), 200
+    else:
+        return "Patient's average heart rate not able to be returned", 400
+
 
 if __name__ == '__main__':
     start_logging()

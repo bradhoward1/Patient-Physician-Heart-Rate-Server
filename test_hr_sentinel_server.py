@@ -254,3 +254,38 @@ def test_patient_status_not_tachycardic():
                 "status": "not tachycardic",
                 "timestamp": "2020-07-10 1:30:50"}
     assert answer == expected
+
+
+def test_attending_patients():
+    from hr_sentinel_server import attending_patients
+    patient_hr_db = [{"patient_id": 1,
+                      "heart_rate": [80, 90, 160],
+                      "timestamp": ["2018-03-09 11:00:36",
+                                    "2018-03-09 11:10:36",
+                                    "2018-03-09 11:20:36"]},
+                     {"patient_id": 2,
+                      "heart_rate": [70, 80],
+                      "timestamp": ["2020-07-10 1:30:50",
+                                    "2020-07-10 1:50:50"]},
+                     {"patient_id": 3,
+                      "heart_rate": [50, 60, 70],
+                      "timestamp": ["2018-03-09 11:00:36",
+                                    "2018-03-09 11:20:36",
+                                    "2018-03-09 11:50:36"]}]
+    patient_db = [{"patient_id": 1,
+                   "attending_username": "Smith.J",
+                   "patient_age": 50},
+                  {"patient_id": 2,
+                   "attending_username": "Howard.B",
+                   "patient_age": 25},
+                  {"patient_id": 3,
+                   "attending_username": "Smith.J",
+                   "patient_age": 32}]
+    answer = attending_patients(patient_db, "Smith.J", patient_hr_db)
+    expected = True, [{"patient_id": 1, "last_heart_rate": 160,
+                       "last_time": "2018-03-09 11:20:36",
+                       "status": "tachycardic"},
+                      {"patient_id": 3, "last_heart_rate": 70,
+                       "last_time": "2018-03-09 11:50:36", "status":
+                       "not tachycardic"}]
+    assert answer == expected
