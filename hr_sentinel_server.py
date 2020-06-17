@@ -215,8 +215,19 @@ def add_patient_hr(patient_id, heart_rate):
                             print("mary")
                             send_email(attending_email, patient_id)
                             print("bob")
-
                     return "Current Patient Edited: Added New HR"
+
+
+def send_email(attending_email, patient_id):
+    x = {
+         "from_email": "brad@test.com",
+         "to_email": attending_email,
+         "subject": "Update about patient " + str(patient_id),
+         "content": str(patient_id) + " is tachycardic"}
+    r = requests.post("http://vcm-7631.vm.duke.edu:5007/hrss/send_email",
+                      json=x)
+    print(r.status_code)
+    print(r.text)
 
 
 def avg_hr_calc(patient_hr_db, patient_id, time):
