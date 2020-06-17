@@ -301,14 +301,15 @@ def get_heart_rate_list(patient_hr_db, patient_id):
         return "Heart Rate List not able to be returned", 400
 
 
-def patient_status(patient_hr_db, patient_db, patient_id):
+def patient_status(patient_id):
+    patient_id = int(patient_id)
     for patient, names in zip(patient_hr_db, patient_db):
         if patient["patient_id"] != patient_id:
             continue
         elif patient["patient_id"] is patient_id:
             list_size = len(patient["heart_rate"])
             latest_hr = patient["heart_rate"][list_size-1]
-            datetime = patient["timestamp"]
+            datetime = patient["timestamp"][list_size-1]
             age = names["patient_age"]
             hr_result = is_tachycardic(age, latest_hr)
             if hr_result is False:
@@ -324,10 +325,11 @@ def patient_status(patient_hr_db, patient_db, patient_id):
 
 
 @app.route("/api/status/<patient_id>", methods=["GET"])
-def get_patient_status(patient_hr_db, patient_db, patient_id):
-    status_dict = patient_status(patient_hr_db, patient_db, patient_id)
+def get_patient_status(patient_id):
+    status_dict = patient_status(patient_id)
     if status_dict:
-        return status_dict, 200
+        print(status_dict)
+        return jsonify(status_dict), 200
     else:
         return "Patient Status not able to be returned", 400
 

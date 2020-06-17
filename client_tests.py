@@ -68,8 +68,12 @@ r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 2,
-	   "heart_rate": 80}
+	   "heart_rate": 200}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 r = requests.get("http://127.0.0.1:5000/api/status/1")
+print("{}, {}".format(r.text, r.status_code))
+
+r = requests.get("http://127.0.0.1:5000/api/status/2")
+print("{}, {}".format(r.text, r.status_code))
