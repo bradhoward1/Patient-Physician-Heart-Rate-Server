@@ -5,14 +5,14 @@ import requests
 # Testing /api/new_patient
 
 out = {"patient_id": 1,
-            "attending_username": "Smith.J",
-            "patient_age": 50}
+       "attending_username": "Smith.J",
+       "patient_age": 50}
 r = requests.post("http://127.0.0.1:5000/api/new_patient", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 2,
-            "attending_username": "Howard.B",
-            "patient_age": 25}
+       "attending_username": "Howard.B",
+       "patient_age": 25}
 r = requests.post("http://127.0.0.1:5000/api/new_patient", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
@@ -38,42 +38,52 @@ print("{}, {}".format(r.text, r.status_code))
 
 # Testing /api/heart_rate
 out = {"patient_id": 1,
-	   "heart_rate": 100}
+       "heart_rate": 100}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 1,
-	   "heart_rate": 120}
+       "heart_rate": 120}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 1,
-	   "heart_rate": 90}
+       "heart_rate": 90}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 1,
-	   "heart_rate": 80}
+       "heart_rate": 80}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 2,
-	   "heart_rate": 120}
+       "heart_rate": 120}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 2,
-	   "heart_rate": 90}
+       "heart_rate": 90}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
 out = {"patient_id": 2,
-	   "heart_rate": 200}
+       "heart_rate": 200}
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
+
+# Testing /api/status/<patient_id>
 
 r = requests.get("http://127.0.0.1:5000/api/status/1")
 print("{}, {}".format(r.text, r.status_code))
 
 r = requests.get("http://127.0.0.1:5000/api/status/2")
+print("{}, {}".format(r.text, r.status_code))
+
+# Testing /api/heart_rate/<patient_id>
+
+r = requests.get("http://127.0.0.1:5000/api/heart_rate/1")
+print("{}, {}".format(r.text, r.status_code))
+
+r = requests.get("http://127.0.0.1:5000/api/heart_rate/2")
 print("{}, {}".format(r.text, r.status_code))

@@ -35,25 +35,6 @@ patient_db = []
 
 
 def add_new_attending(username_id, email, phone):
-    """Add a new attending physician to the attending physicians database
-
-    The normal range for the voltage readings is +/- 300 mV. Within the
-    assignment, it was asked that if a voltage reading were found to be outside
-    of this range, then add a warning entry to the log file indicating the name
-    of the file. This function reads in all of the voltage values and checks to
-    see that each one is in fact within the acceptable range. If any of the
-    voltage readings are outside of this range, a warning entry is made.
-
-    Parameters
-    ----------
-    username_id : String
-        Gives the name of the 
-    
-    Returns
-    -------
-    bool
-        True if successful, False if otherwise
-    """
     new_attending = {"attending_username": username_id,
                      "attending_email": email,
                      "attending_phone": phone}
@@ -138,8 +119,8 @@ def post_new_patient():
     if validate is not True:
         return validate, 400
     patient = add_new_patient(new_dict["patient_id"],
-                                new_dict["attending_username"],
-                                new_dict["patient_age"])
+                              new_dict["attending_username"],
+                              new_dict["patient_age"])
     if patient is True:
         logging.info("New Patient Added!")
         logging.info("Patient ID: {}".format(
@@ -283,8 +264,9 @@ def is_tachycardic(age, heart_rate):
         return False
 
 
-def heart_rate_list(patient_list, patient_id):
-    for patient in patient_list:
+def heart_rate_list(patient_id):
+    patient_id = int(patient_id)
+    for patient in patient_hr_db:
         if patient["patient_id"] != patient_id:
             continue
         elif patient["patient_id"] is patient_id:
@@ -293,8 +275,9 @@ def heart_rate_list(patient_list, patient_id):
 
 
 @app.route("/api/heart_rate/<patient_id>", methods=["GET"])
-def get_heart_rate_list(patient_hr_db, patient_id):
-    hr_list = heart_rate_list(patient_hr_db, patient_id)
+def get_heart_rate_list(patient_id):
+    hr_list = heart_rate_list(patient_id)
+    print(hr_list)
     if hr_list:
         return jsonify(hr_list), 200
     else:
@@ -353,6 +336,51 @@ def get_hr_avg(patient_hr_db, patient_db, patient_id):
         return jsonify(status_dict), 200
     else:
         return "Patient's average heart rate not able to be returned", 400
+
+
+def attending_patients(patient_db, attending_username, patient_hr_db):
+    attending_patient_list = []
+    for patient in patient_db:
+        out_dict = {"patient_id": 0, "last_heart_rate": 0,
+                    "last_time": "", "status": ""}
+        out_dict["patient_id"] = patient["patient_id"]
+        # I think age is in the right place- needs to update each i
+        age = patient["patient_age"]
+        if attending_username == patient["attending_username"]:
+            x = patient["patient_id"]
+            for patient in patient_hr_db:
+                if x == patient["patient_id"]:
+                    index = len(patient["heart_rate"]) - 1
+                    out_dict["last_heart_rate"] = patient["heart_rate"][index]
+                    out_dict["last_time"] = patient["timestamp"][index]
+                    result = is_tachycardic(age, out_dict["last_heart_rate"])
+                    if result is True:
+                        out_dict["status"] = "tachycardic"
+                    else:
+                        out_dict["status"] = "not tachycardic"
+            attending_patient_list.append(out_dict)
+    # should be global scope of attending_db
+    attending_check = []
+    for attending in attending_db:
+        if attending_username == attending["attending_username"]:
+            attending_check.append("Exists")
+    print(len(attending_check))
+    if len(attending_check) == 0:
+        return False, "Attending Physician does not exist in the database"
+    print(attending_patient_list)
+    return True, attending_patient_list
+
+
+@app.route("/api/patients/<attending_username>", methods=["GET"])
+def get_attending_username(patient_db, attending_username, patient_hr_db):
+    status_dict = attending_patients(patient_db, attending_username,
+                                     patient_hr_db)
+    # First element is "True", Second element is the dictionary
+    if status_dict[0] is true:
+        return jsonify(status_dict), 200
+    else:
+        return "Patient's average heart rate not able to be returned", 400
+
 
 if __name__ == '__main__':
     start_logging()
