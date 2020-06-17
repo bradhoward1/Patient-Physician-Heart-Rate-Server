@@ -201,7 +201,7 @@ def send_email(attending_email, patient_id):
     print(r.text)
 
 
-def avg_hr_calc(patient_hr_db, patient_id, time):
+def avg_hr_calc(patient_id, time):
     patient_id = int(patient_id)
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
@@ -210,8 +210,8 @@ def avg_hr_calc(patient_hr_db, patient_id, time):
             hr_vals = hr_vals.reverse()
             indicator = len(patient["heart_rate"]) - timestamp
             relevant_hr = patient["heart_rate"][:indicator]
-            avg_hr = sum(relevant_hr) / len(relevant_hr)
-            return avg_hr, True
+            avg_hr = round(sum(relevant_hr) / len(relevant_hr))
+            return avg_hr
         else:
             continue
 
@@ -220,13 +220,14 @@ def avg_hr_calc(patient_hr_db, patient_id, time):
 def post_hr_avg():
     new_dict = request.get_json()
     patient_id = new_dict["patient_id"]
-    timestampOI = new_dict["heart_rate_average_since"]
+    time = new_dict["heart_rate_average_since"]
     # patient_hr_db should be of global scope
-    validate = avg_hr_calc(patient_hr_db, patient_id, timestampOI)
-    if validate[1] is not True:
-        return validate, 400
+    validate = avg_hr_calc(patient_id, time)
+    print(validate)
+    if validate:
+        return jsonify(validate), 400
     else:
-        return validate[0]
+        return jsonify(validate), 200
 
 
 @app.route("/api/heart_rate", methods=["POST"])

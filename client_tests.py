@@ -96,3 +96,11 @@ print("{}, {}".format(r.text, r.status_code))
 r = requests.get("http://127.0.0.1:5000/api/heart_rate/average/2")
 print("{}, {}".format(r.text, r.status_code))
 
+# Testing /api/heart_rate/interval_average
+
+# out = {"patient_id": 2,
+#        "heart_rate_average_since": "06-17-20 14:53:43"}
+# r = requests.post("http://127.0.0.1:5000/api/heart_rate/interval_average", json=out)
+# print("{}, {}".format(r.text, r.status_code))
+
+
