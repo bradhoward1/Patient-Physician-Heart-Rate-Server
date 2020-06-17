@@ -47,3 +47,29 @@ out = {"patient_id": 1,
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
+out = {"patient_id": 1,
+	   "heart_rate": 90}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
+
+out = {"patient_id": 1,
+	   "heart_rate": 80}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
+
+out = {"patient_id": 2,
+	   "heart_rate": 120}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
+
+out = {"patient_id": 2,
+	   "heart_rate": 90}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
+
+out = {"patient_id": 2,
+	   "heart_rate": 80}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
+
+r = requests.get("http://127.0.0.1:5000/api/status/1")

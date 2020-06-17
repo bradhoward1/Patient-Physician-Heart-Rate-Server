@@ -182,29 +182,20 @@ def add_patient_hr(patient_id, heart_rate):
         print(patient_hr_db)
         return "New Patient Added to Track HR"
     else:
-        print("Not a new Patient")
         for patient, patient_name in zip(patient_hr_db, patient_db):
             if patient["patient_id"] != patient_id:
-                print("Shouldnt be here!")
                 continue
             elif patient["patient_id"] is patient_id:
-                print("Got a match!")
                 patient["heart_rate"].append(heart_rate)
-                print(patient["heart_rate"])
                 patient["timestamp"].append(string_recorded_datetime)
                 age = patient_name["patient_age"]
-                print("Is he tachycardic?")
                 result = is_tachycardic(age, heart_rate)
-                print(result)
                 if result is True:
                     attending_phys = patient_name["attending_username"]
-                    print(attending_phys)
                     for attending in attending_db:
                         if attending["attending_username"] != attending_phys:
-                            print("Don't Want to be Here")
                             continue
                         else:
-                            print("Want to Be Here!")
                             attending_email = attending["attending_email"]
                             logging.info("Tachycardic heart rate identified")
                             logging.info("Patient ID: {}".format(patient_id))
@@ -212,10 +203,9 @@ def add_patient_hr(patient_id, heart_rate):
                                          ": {}".format(heart_rate))
                             logging.info("Attending Physician Email"
                                          ": {}".format(attending_email))
-                            print("mary")
                             send_email(attending_email, patient_id)
-                            print("bob")
-                    return "Current Patient Edited: Added New HR"
+                print(patient_hr_db)
+                return "Current Patient Edited: Added New HR"
 
 
 def send_email(attending_email, patient_id):
@@ -337,7 +327,7 @@ def patient_status(patient_hr_db, patient_db, patient_id):
 def get_patient_status(patient_hr_db, patient_db, patient_id):
     status_dict = patient_status(patient_hr_db, patient_db, patient_id)
     if status_dict:
-        return jsonify(status_dict), 200
+        return status_dict, 200
     else:
         return "Patient Status not able to be returned", 400
 
