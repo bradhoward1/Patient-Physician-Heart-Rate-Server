@@ -267,6 +267,7 @@ def is_tachycardic(age, heart_rate):
 
 def heart_rate_list(patient_id):
     patient_id = int(patient_id)
+    hr_list = list()
     for patient in patient_hr_db:
         if patient["patient_id"] != patient_id:
             continue
@@ -340,7 +341,7 @@ def get_hr_avg(patient_id):
         return "Patient's average heart rate not able to be returned", 400
 
 
-def attending_patients(patient_db, attending_username, patient_hr_db):
+def attending_patients(attending_username):
     attending_patient_list = []
     for patient in patient_db:
         out_dict = {"patient_id": 0, "last_heart_rate": 0,
@@ -366,21 +367,19 @@ def attending_patients(patient_db, attending_username, patient_hr_db):
     for attending in attending_db:
         if attending_username == attending["attending_username"]:
             attending_check.append("Exists")
-    print(len(attending_check))
     if len(attending_check) == 0:
-        return False, "Attending Physician does not exist in the database"
+        return "Attending Physician does not exist in the database"
     print(attending_patient_list)
-    return True, attending_patient_list
+    return attending_patient_list
 
 
 @app.route("/api/patients/<attending_username>", methods=["GET"])
-def get_attending_username(patient_db, attending_username, patient_hr_db):
-    status_dict = attending_patients(patient_db, attending_username,
-                                     patient_hr_db)
+def get_attending_username(attending_username):
+    status_dict = attending_patients(attending_username)
     # First element is "True", Second element is the dictionary
-    if status_dict[0] is true:
+    if status_dict:
         return jsonify(status_dict), 200
-    else:
+    elif status_dict == "Attending Physician does not exist in the database":
         return "Patient's average heart rate not able to be returned", 400
 
 

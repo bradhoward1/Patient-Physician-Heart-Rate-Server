@@ -72,6 +72,10 @@ out = {"patient_id": 2,
 r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
 print("{}, {}".format(r.text, r.status_code))
 
+out = {"patient_id": 3,
+       "heart_rate": 160}
+r = requests.post("http://127.0.0.1:5000/api/heart_rate", json=out)
+print("{}, {}".format(r.text, r.status_code))
 # Testing /api/status/<patient_id>
 
 r = requests.get("http://127.0.0.1:5000/api/status/1")
@@ -98,9 +102,13 @@ print("{}, {}".format(r.text, r.status_code))
 
 # Testing /api/heart_rate/interval_average
 
-# out = {"patient_id": 2,
-#        "heart_rate_average_since": "06-17-20 14:53:43"}
-# r = requests.post("http://127.0.0.1:5000/api/heart_rate/interval_average", json=out)
-# print("{}, {}".format(r.text, r.status_code))
+out = {"patient_id": 2,
+       "heart_rate_average_since": "06-17-20 14:53:43"}
+r = requests.post("http://127.0.0.1:5000/api/"
+                  "heart_rate/interval_average", json=out)
+print("{}, {}".format(r.text, r.status_code))
 
+# Testing /api/patients/<attending_username>
 
+r = requests.get("http://127.0.0.1:5000/api/patients/Smith.J")
+print("{}, {}".format(r.text, r.status_code))
