@@ -209,22 +209,33 @@ def send_email(attending_email, patient_id):
     print(r.text)
 
 
-def avg_hr_calc(patient_id, time):
+def avg_hr_calc(patient_id, timestamp):
     patient_id = int(patient_id)
+    time_compare = time_converter(timestamp)
+    print("Time compare is {}".format(time_compare))
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
-            if timestamp = patient["timestamp"].index(time):
-                hr_vals = patient["heart_rate"]
-                hr_vals = hr_vals.reverse()
-                indicator = len(patient["heart_rate"]) - timestamp
-                relevant_hr = patient["heart_rate"][:indicator]
-                avg_hr = round(sum(relevant_hr) / len(relevant_hr))
-                return avg_hr
-            # else:
-                # for i in patient["timestamp"]:
-                    # if datetime.date(time) < datetime.date(i):
-                        # continue
-                    # else:
+            hr_empty = []
+            for i in patient["timestamp"]:
+                time_x = time_converter(i)
+                print(time_x)
+                if time_compare <= time_x:
+                    hr_empty.append(i)
+            # hr_empty will now contain list of corresponding times
+            print(hr_empty)
+            index_array = []
+            for j in hr_empty:
+                index = patient["timestamp"].index(j)
+                index_array.append(index)
+            # index_array contains indices of necessary heart rates
+            print(index_array)
+            HR_VALS = []
+            for k in index_array:
+                HR = patient["heart_rate"][k]
+                print(HR)
+                HR_VALS.append(HR)
+            avg_hr = round(sum(HR_VALS) / len(HR_VALS))
+            return avg_hr
         else:
             continue
 
@@ -396,7 +407,21 @@ def get_attending_username(attending_username):
         return "Patient's average heart rate not able to be returned", 400
 
 
+def time_converter(time_stamp):
+    time_split = time_stamp.split()
+    y_m_d = time_split[0]
+    y_m_d = y_m_d.split("-")
+    y = int(y_m_d[0])
+    m = int(y_m_d[1])
+    d = int(y_m_d[2])
+    h_m_s = time_split[1]
+    h_m_s = h_m_s.split(":")
+    h = int(h_m_s[0])
+    mi = int(h_m_s[1])
+    s = int(h_m_s[2])
+    timestamp = datetime(y, m, d, h, mi, s, 0)
+    return timestamp
+
 if __name__ == '__main__':
     start_logging()
-    attending_patients("Smith.J")
-    # app.run()
+    app.run()

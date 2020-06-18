@@ -1,6 +1,7 @@
 # test_hr_sentinel_server.py
 
 import pytest
+import datetime
 
 
 def test_add_new_attending():
@@ -34,7 +35,7 @@ def test_validate_new_attending(result, expected):
 def test_add_new_patient():
     from hr_sentinel_server import add_new_patient
     input_id = 123
-    attending_id = "Smith.J"
+    attending_id = "Smithh.J"
     input_age = 50
     answer = add_new_patient(input_id, attending_id, input_age)
     expected = True
@@ -122,43 +123,18 @@ def test_add_patient_hr(result1, result2, expected):
     assert answer == expected
 
 
-def test_avg_hr_calc():
+# Tests for existing timestamp and time in between timestamps
+@pytest.mark.parametrize("id, stamp, expected",
+                         [(1, "2018-03-09 11:00:36", 110),
+                          (3, "2018-03-09 11:10:36", 65)])
+def test_avg_hr_calc(id, stamp, expected):
     from hr_sentinel_server import avg_hr_calc
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
-    answer = avg_hr_calc(3, "2018-03-09 11:20:36")
-    expected = 65
+    answer = avg_hr_calc(id, stamp)
     assert answer == expected
 
 
 def test_total_hr_avg():
     from hr_sentinel_server import total_hr_avg
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
     answer = total_hr_avg(3)
     expected = {"Average heart rate": 60}
     assert answer == expected
@@ -218,3 +194,10 @@ def test_attending_patients():
                  "last_time": "2018-03-09 11:50:36", "status":
                  "not tachycardic"}]
     assert answer == expected
+
+
+# Checking to ensure answer is datetime object type
+def test_time_converter():
+    from hr_sentinel_server import time_converter
+    answer = time_converter("2018-03-09 11:05:36")
+    assert type(answer) == datetime.datetime
