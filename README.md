@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/BME547-Summer2020/heart-rate-sentinel-server-audibuild.svg?token=sKsYGbJ1i9ydp1r9jhAy&branch=master)](https://travis-ci.com/BME547-Summer2020/heart-rate-sentinel-server-audibuild)
+
 # Heart Rate Sentinel Server Assignment
 Team AudiBuild. Team name inspiration is from our Tympanometer Design Project with Dr. Palmeri.
 
