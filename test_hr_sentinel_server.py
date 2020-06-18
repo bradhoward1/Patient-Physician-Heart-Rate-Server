@@ -180,7 +180,7 @@ def test_patient_status_not_tachycardic():
     answer = patient_status(2)
     expected = {"heart_rate": 80,
                 "status": "not tachycardic",
-                "timestamp": "2020-07-10 1:50:50"}
+                "timestamp": "2020-05-10 1:50:50"}
     assert answer == expected
 
 
