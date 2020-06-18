@@ -800,7 +800,7 @@ def attending_patients(attending_username):
     -------
     list
         List of dictionaries of info of all
-        patients of an attending physician. 
+        patients of an attending physician.
     """
     attending_patient_list = []
     for patient in patient_db:
