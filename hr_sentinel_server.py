@@ -18,8 +18,8 @@ patient_hr_db = [{"patient_id": 1,
                                 "2018-03-09 11:20:36"]},
                  {"patient_id": 2,
                   "heart_rate": [70, 80],
-                  "timestamp": ["2020-07-10 1:30:50",
-                                "2020-07-10 1:50:50"]},
+                  "timestamp": ["2019-07-10 1:30:50",
+                                "2020-05-10 1:50:50"]},
                  {"patient_id": 3,
                   "heart_rate": [50, 60, 70],
                   "timestamp": ["2018-03-09 11:00:36",
@@ -358,7 +358,7 @@ def add_patient_hr(patient_id, heart_rate):
     """
     recorded_datetime = datetime.now()
     string_recorded_datetime = datetime.strftime(
-            recorded_datetime,  "%m-%d-%y %H:%M:%S")
+            recorded_datetime,  "%Y-%m-%d %H:%M:%S")
     if not any(patient["patient_id"] == patient_id
                for patient in patient_hr_db):
         new_patient = {"patient_id": patient_id,
@@ -455,27 +455,27 @@ def avg_hr_calc(patient_id, timestamp):
         average heart rate"""
     patient_id = int(patient_id)
     time_compare = time_converter(timestamp)
-    print("Time compare is {}".format(time_compare))
+    # print("Time compare is {}".format(time_compare))
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
             hr_empty = []
             for i in patient["timestamp"]:
                 time_x = time_converter(i)
-                print(time_x)
+                # print(time_x)
                 if time_compare <= time_x:
                     hr_empty.append(i)
             # hr_empty will now contain list of corresponding times
-            print(hr_empty)
+            # print("HR_EMPTY: {}".format(hr_empty))
             index_array = []
             for j in hr_empty:
                 index = patient["timestamp"].index(j)
                 index_array.append(index)
             # index_array contains indices of necessary heart rates
-            print(index_array)
+            # print("INDEX ARRAY: ".format(index_array))
             HR_VALS = []
             for k in index_array:
                 HR = patient["heart_rate"][k]
-                print(HR)
+                # print(HR)
                 HR_VALS.append(HR)
             avg_hr = round(sum(HR_VALS) / len(HR_VALS))
             return avg_hr
@@ -505,11 +505,11 @@ def post_hr_avg():
     time = new_dict["heart_rate_average_since"]
     # patient_hr_db should be of global scope
     validate = avg_hr_calc(patient_id, time)
-    print(validate)
+    # print(validate)
     if validate:
-        return jsonify(validate), 400
-    else:
         return jsonify(validate), 200
+    else:
+        return jsonify(validate), 400
 
 
 @app.route("/api/heart_rate", methods=["POST"])
@@ -750,7 +750,7 @@ def total_hr_avg(patient_id):
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
             hr_vals = patient["heart_rate"]
-            avg_hr = sum(hr_vals) / len(hr_vals)
+            avg_hr = round(sum(hr_vals) / len(hr_vals))
             out_dict = {"Average heart rate": avg_hr}
             return out_dict
         else:
@@ -759,7 +759,7 @@ def total_hr_avg(patient_id):
 
 @app.route("/api/heart_rate/average/<patient_id>", methods=["GET"])
 def get_hr_avg(patient_id):
-    """Generates a list of heart rates for a given patient
+    """Generates the average heart rate for a given patient
 
     This method should return the patient's average heart
     rate, as an integer, of all measurements that have
@@ -885,14 +885,18 @@ def time_converter(time_stamp):
     y_m_d = time_split[0]
     y_m_d = y_m_d.split("-")
     y = int(y_m_d[0])
+    # print("y = {}".format(y))
     m = int(y_m_d[1])
+    # print("m = {}".format(m))
     d = int(y_m_d[2])
+    # print("d = {}".format(d))
     h_m_s = time_split[1]
     h_m_s = h_m_s.split(":")
     h = int(h_m_s[0])
     mi = int(h_m_s[1])
     s = int(h_m_s[2])
     timestamp = datetime(y, m, d, h, mi, s, 0)
+    # print("TimeSTAMP = {}".format(timestamp))
     return timestamp
 
 if __name__ == '__main__':
