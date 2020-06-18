@@ -138,8 +138,8 @@ def test_avg_hr_calc():
                       "timestamp": ["2018-03-09 11:00:36",
                                     "2018-03-09 11:20:36",
                                     "2018-03-09 11:50:36"]}]
-    answer = avg_hr_calc(patient_hr_db, 3, "2018-03-09 11:20:36")
-    expected = 65, True
+    answer = avg_hr_calc(3, "2018-03-09 11:20:36")
+    expected = 65
     assert answer == expected
 
 
@@ -159,8 +159,8 @@ def test_total_hr_avg():
                       "timestamp": ["2018-03-09 11:00:36",
                                     "2018-03-09 11:20:36",
                                     "2018-03-09 11:50:36"]}]
-    answer = total_hr_avg(patient_hr_db, 3)
-    expected = {"Average heart rate": 60}, True
+    answer = total_hr_avg(3)
+    expected = {"Average heart rate": 60}
     assert answer == expected
 
 
@@ -186,96 +186,35 @@ def test_is_tachycardic(result1, result2, expected):
 def test_heart_rate_list():
     from hr_sentinel_server import heart_rate_list
     answer = heart_rate_list(2)
-    expected = []
+    expected = [70, 80]
     assert answer == expected
 
 
 def test_patient_status_tachycardic():
     from hr_sentinel_server import patient_status
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": "2018-03-09 11:00:36"},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": "2020-07-10 1:30:50"},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": "2018-03-09 11:00:36"}]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = patient_status(patient_hr_db, patient_db, 1)
+    answer = patient_status(1)
     expected = {"heart_rate": 160,
                 "status": "tachycardic",
-                "timestamp": "2018-03-09 11:00:36"}
+                "timestamp": "2018-03-09 11:20:36"}
     assert answer == expected
 
 
 def test_patient_status_not_tachycardic():
     from hr_sentinel_server import patient_status
-    patient_hr_db = [
-                     {"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": "2018-03-09 11:00:36"},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": "2020-07-10 1:30:50"},
-                     {"patient_id": 3,
-                      "attending_username": "Smith.J",
-                      "patient_age": 32}
-                    ]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = patient_status(patient_hr_db, patient_db, 2)
+    answer = patient_status(2)
     expected = {"heart_rate": 80,
                 "status": "not tachycardic",
-                "timestamp": "2020-07-10 1:30:50"}
+                "timestamp": "2020-07-10 1:50:50"}
     assert answer == expected
 
 
 def test_attending_patients():
     from hr_sentinel_server import attending_patients
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = attending_patients(patient_db, "Smith.J", patient_hr_db)
-    expected = True, [{"patient_id": 1, "last_heart_rate": 160,
-                       "last_time": "2018-03-09 11:20:36",
-                       "status": "tachycardic"},
-                      {"patient_id": 3, "last_heart_rate": 70,
-                       "last_time": "2018-03-09 11:50:36", "status":
-                       "not tachycardic"}]
+    answer = attending_patients("Smith.J")
+    expected = [{"patient_id": 1, "last_heart_rate": 160,
+                 "last_time": "2018-03-09 11:20:36",
+                 "status": "tachycardic"},
+                {"patient_id": 3, "last_heart_rate": 70,
+                 "last_time": "2018-03-09 11:50:36", "status":
+                 "not tachycardic"}]
     assert answer == expected

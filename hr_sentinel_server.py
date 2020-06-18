@@ -11,27 +11,35 @@ attending_db = list()
 patient_hr_db = list()
 patient_db = []
 
-# patient_hr_db = [{"patient_id": 1,
-#                   "heart_rate": [80]},
-#                  {"patient_id": 2,
-#                   "heart_rate": [70, 80]},
-#                  {"patient_id": 3,
-#                   "heart_rate": [50, 60, 70]}]
-# patient_db = [{"patient_id": 1,
-#                 "attending_username": "Smith.J",
-#                 "patient_age": 50},
-#               {"patient_id": 2,
-#                 "attending_username": "Howard.B",
-#                 "patient_age": 25},
-#               {"patient_id": 3,
-#                    "attending_username": "Smith.J",
-#                    "patient_age": 32}]
-# attending_db = [{"attending_username": "Smith.J",
-#                  "attending_email": "smith@test.com",
-#                  "attending_phone": "919-867-5309"},
-#                 {"attending_username": "Howard.B",
-#                  "attending_email": "brad@test.com",
-#                  "attending_phone": "239-595-7067"}]
+patient_hr_db = [{"patient_id": 1,
+                  "heart_rate": [80, 90, 160],
+                  "timestamp": ["2018-03-09 11:00:36",
+                                "2018-03-09 11:10:36",
+                                "2018-03-09 11:20:36"]},
+                 {"patient_id": 2,
+                  "heart_rate": [70, 80],
+                  "timestamp": ["2020-07-10 1:30:50",
+                                "2020-07-10 1:50:50"]},
+                 {"patient_id": 3,
+                  "heart_rate": [50, 60, 70],
+                  "timestamp": ["2018-03-09 11:00:36",
+                                "2018-03-09 11:20:36",
+                                "2018-03-09 11:50:36"]}]
+patient_db = [{"patient_id": 1,
+               "attending_username": "Smith.J",
+               "patient_age": 50},
+              {"patient_id": 2,
+               "attending_username": "Howard.B",
+               "patient_age": 25},
+              {"patient_id": 3,
+               "attending_username": "Smith.J",
+               "patient_age": 32}]
+attending_db = [{"attending_username": "Smith.J",
+                 "attending_email": "smith@test.com",
+                 "attending_phone": "919-867-5309"},
+                {"attending_username": "Howard.B",
+                 "attending_email": "brad@test.com",
+                 "attending_phone": "239-595-7067"}]
 
 
 def add_new_attending(username_id, email, phone):
@@ -205,13 +213,18 @@ def avg_hr_calc(patient_id, time):
     patient_id = int(patient_id)
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
-            timestamp = patient["timestamp"].index(time)
-            hr_vals = patient["heart_rate"]
-            hr_vals = hr_vals.reverse()
-            indicator = len(patient["heart_rate"]) - timestamp
-            relevant_hr = patient["heart_rate"][:indicator]
-            avg_hr = round(sum(relevant_hr) / len(relevant_hr))
-            return avg_hr
+            if timestamp = patient["timestamp"].index(time):
+                hr_vals = patient["heart_rate"]
+                hr_vals = hr_vals.reverse()
+                indicator = len(patient["heart_rate"]) - timestamp
+                relevant_hr = patient["heart_rate"][:indicator]
+                avg_hr = round(sum(relevant_hr) / len(relevant_hr))
+                return avg_hr
+            # else:
+                # for i in patient["timestamp"]:
+                    # if datetime.date(time) < datetime.date(i):
+                        # continue
+                    # else:
         else:
             continue
 
@@ -385,4 +398,5 @@ def get_attending_username(attending_username):
 
 if __name__ == '__main__':
     start_logging()
-    app.run()
+    attending_patients("Smith.J")
+    # app.run()
