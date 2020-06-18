@@ -11,7 +11,6 @@ attending_db = list()
 patient_hr_db = list()
 patient_db = []
 
-
 patient_hr_db = [{"patient_id": 1,
                   "heart_rate": [80, 90, 160],
                   "timestamp": ["2018-03-09 11:00:36",
@@ -40,10 +39,7 @@ attending_db = [{"attending_username": "Smith.J",
                  "attending_phone": "919-867-5309"},
                 {"attending_username": "Howard.B",
                  "attending_email": "brad@test.com",
-                 "attending_phone": "239-595-7067"},
-                {"patient_id": 3,
-                 "attending_username": "Smith.J",
-                 "patient_age": 32}]
+                 "attending_phone": "239-595-7067"}]
 
 
 def add_new_attending(username_id, email, phone):
@@ -130,9 +126,9 @@ def post_new_patient():
     validate = validate_new_patient(new_dict)
     if validate is not True:
         return validate, 400
-    patient = add_new_attending(new_dict["patient_id"],
-                                new_dict["attending_username"],
-                                new_dict["patient_age"])
+    patient = add_new_patient(new_dict["patient_id"],
+                              new_dict["attending_username"],
+                              new_dict["patient_age"])
     if patient is True:
         logging.info("New Patient Added!")
         logging.info("Patient ID: {}".format(
@@ -172,6 +168,7 @@ def add_patient_hr(patient_id, heart_rate):
                        "heart_rate": [heart_rate],
                        "timestamp": [string_recorded_datetime]}
         patient_hr_db.append(new_patient)
+        print(patient_hr_db)
         return "New Patient Added to Track HR"
     else:
         for patient, patient_name in zip(patient_hr_db, patient_db):
@@ -196,20 +193,49 @@ def add_patient_hr(patient_id, heart_rate):
                             logging.info("Attending Physician Email"
                                          ": {}".format(attending_email))
                             send_email(attending_email, patient_id)
+                print(patient_hr_db)
                 return "Current Patient Edited: Added New HR"
 
 
-def avg_hr_calc(patient_hr_db, patient_id, time):
+def send_email(attending_email, patient_id):
+    x = {
+         "from_email": "brad@test.com",
+         "to_email": attending_email,
+         "subject": "Update about patient " + str(patient_id),
+         "content": str(patient_id) + " is tachycardic"}
+    r = requests.post("http://vcm-7631.vm.duke.edu:5007/hrss/send_email",
+                      json=x)
+    print(r.status_code)
+    print(r.text)
+
+
+def avg_hr_calc(patient_id, timestamp):
     patient_id = int(patient_id)
+    time_compare = time_converter(timestamp)
+    print("Time compare is {}".format(time_compare))
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
-            timestamp = patient["timestamp"].index(time)
-            hr_vals = patient["heart_rate"]
-            hr_vals = hr_vals.reverse()
-            indicator = len(patient["heart_rate"]) - timestamp
-            relevant_hr = patient["heart_rate"][:indicator]
-            avg_hr = sum(relevant_hr) / len(relevant_hr)
-            return avg_hr, True
+            hr_empty = []
+            for i in patient["timestamp"]:
+                time_x = time_converter(i)
+                print(time_x)
+                if time_compare <= time_x:
+                    hr_empty.append(i)
+            # hr_empty will now contain list of corresponding times
+            print(hr_empty)
+            index_array = []
+            for j in hr_empty:
+                index = patient["timestamp"].index(j)
+                index_array.append(index)
+            # index_array contains indices of necessary heart rates
+            print(index_array)
+            HR_VALS = []
+            for k in index_array:
+                HR = patient["heart_rate"][k]
+                print(HR)
+                HR_VALS.append(HR)
+            avg_hr = round(sum(HR_VALS) / len(HR_VALS))
+            return avg_hr
         else:
             continue
 
@@ -218,13 +244,14 @@ def avg_hr_calc(patient_hr_db, patient_id, time):
 def post_hr_avg():
     new_dict = request.get_json()
     patient_id = new_dict["patient_id"]
-    timestampOI = new_dict["heart_rate_average_since"]
+    time = new_dict["heart_rate_average_since"]
     # patient_hr_db should be of global scope
-    validate = avg_hr_calc(patient_hr_db, patient_id, timestampOI)
-    if validate[1] is not True:
-        return validate, 400
+    validate = avg_hr_calc(patient_id, time)
+    print(validate)
+    if validate:
+        return jsonify(validate), 400
     else:
-        return validate[0]
+        return jsonify(validate), 200
 
 
 @app.route("/api/heart_rate", methods=["POST"])
@@ -262,8 +289,10 @@ def is_tachycardic(age, heart_rate):
         return False
 
 
-def heart_rate_list(patient_list, patient_id):
-    for patient in patient_list:
+def heart_rate_list(patient_id):
+    patient_id = int(patient_id)
+    hr_list = list()
+    for patient in patient_hr_db:
         if patient["patient_id"] != patient_id:
             continue
         elif patient["patient_id"] is patient_id:
@@ -272,22 +301,24 @@ def heart_rate_list(patient_list, patient_id):
 
 
 @app.route("/api/heart_rate/<patient_id>", methods=["GET"])
-def get_heart_rate_list(patient_hr_db, patient_id):
-    hr_list = heart_rate_list(patient_hr_db, patient_id)
+def get_heart_rate_list(patient_id):
+    hr_list = heart_rate_list(patient_id)
+    print(hr_list)
     if hr_list:
         return jsonify(hr_list), 200
     else:
         return "Heart Rate List not able to be returned", 400
 
 
-def patient_status(patient_hr_db, patient_db, patient_id):
+def patient_status(patient_id):
+    patient_id = int(patient_id)
     for patient, names in zip(patient_hr_db, patient_db):
         if patient["patient_id"] != patient_id:
             continue
         elif patient["patient_id"] is patient_id:
             list_size = len(patient["heart_rate"])
             latest_hr = patient["heart_rate"][list_size-1]
-            datetime = patient["timestamp"]
+            datetime = patient["timestamp"][list_size-1]
             age = names["patient_age"]
             hr_result = is_tachycardic(age, latest_hr)
             if hr_result is False:
@@ -303,36 +334,38 @@ def patient_status(patient_hr_db, patient_db, patient_id):
 
 
 @app.route("/api/status/<patient_id>", methods=["GET"])
-def get_patient_status(patient_hr_db, patient_db, patient_id):
-    status_dict = patient_status(patient_hr_db, patient_db, patient_id)
+def get_patient_status(patient_id):
+    status_dict = patient_status(patient_id)
     if status_dict:
+        print(status_dict)
         return jsonify(status_dict), 200
     else:
         return "Patient Status not able to be returned", 400
 
 
-def total_hr_avg(patient_hr_db, patient_id):
+def total_hr_avg(patient_id):
     patient_id = int(patient_id)
     for patient in patient_hr_db:
         if patient_id == patient["patient_id"]:
             hr_vals = patient["heart_rate"]
             avg_hr = sum(hr_vals) / len(hr_vals)
             out_dict = {"Average heart rate": avg_hr}
-            return out_dict, True
+            return out_dict
         else:
             continue
 
 
 @app.route("/api/heart_rate/average/<patient_id>", methods=["GET"])
-def get_hr_avg(patient_hr_db, patient_db):
-    status_dict = total_hr_avg(patient_hr_db, patient_id)
+def get_hr_avg(patient_id):
+    status_dict = total_hr_avg(patient_id)
     if status_dict:
+        print(status_dict)
         return jsonify(status_dict), 200
     else:
         return "Patient's average heart rate not able to be returned", 400
 
 
-def attending_patients(patient_db, attending_username, patient_hr_db):
+def attending_patients(attending_username):
     attending_patient_list = []
     for patient in patient_db:
         out_dict = {"patient_id": 0, "last_heart_rate": 0,
@@ -358,23 +391,36 @@ def attending_patients(patient_db, attending_username, patient_hr_db):
     for attending in attending_db:
         if attending_username == attending["attending_username"]:
             attending_check.append("Exists")
-    print(len(attending_check))
     if len(attending_check) == 0:
-        return False, "Attending Physician does not exist in the database"
+        return "Attending Physician does not exist in the database"
     print(attending_patient_list)
-    return True, attending_patient_list
+    return attending_patient_list
 
 
 @app.route("/api/patients/<attending_username>", methods=["GET"])
-def get_attending_username(patient_db, attending_username, patient_hr_db):
-    status_dict = attending_patients(patient_db, attending_username,
-                                     patient_hr_db)
+def get_attending_username(attending_username):
+    status_dict = attending_patients(attending_username)
     # First element is "True", Second element is the dictionary
-    if status_dict[0] is true:
+    if status_dict:
         return jsonify(status_dict), 200
-    else:
+    elif status_dict == "Attending Physician does not exist in the database":
         return "Patient's average heart rate not able to be returned", 400
 
+
+def time_converter(time_stamp):
+    time_split = time_stamp.split()
+    y_m_d = time_split[0]
+    y_m_d = y_m_d.split("-")
+    y = int(y_m_d[0])
+    m = int(y_m_d[1])
+    d = int(y_m_d[2])
+    h_m_s = time_split[1]
+    h_m_s = h_m_s.split(":")
+    h = int(h_m_s[0])
+    mi = int(h_m_s[1])
+    s = int(h_m_s[2])
+    timestamp = datetime(y, m, d, h, mi, s, 0)
+    return timestamp
 
 if __name__ == '__main__':
     start_logging()

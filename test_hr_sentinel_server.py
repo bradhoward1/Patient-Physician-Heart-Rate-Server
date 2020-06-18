@@ -1,6 +1,7 @@
 # test_hr_sentinel_server.py
 
 import pytest
+import datetime
 
 
 def test_add_new_attending():
@@ -34,7 +35,7 @@ def test_validate_new_attending(result, expected):
 def test_add_new_patient():
     from hr_sentinel_server import add_new_patient
     input_id = 123
-    attending_id = "Smith.J"
+    attending_id = "Smithh.J"
     input_age = 50
     answer = add_new_patient(input_id, attending_id, input_age)
     expected = True
@@ -122,45 +123,20 @@ def test_add_patient_hr(result1, result2, expected):
     assert answer == expected
 
 
-def test_avg_hr_calc():
+# Tests for existing timestamp and time in between timestamps
+@pytest.mark.parametrize("id, stamp, expected",
+                         [(1, "2018-03-09 11:00:36", 110),
+                          (3, "2018-03-09 11:10:36", 65)])
+def test_avg_hr_calc(id, stamp, expected):
     from hr_sentinel_server import avg_hr_calc
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
-    answer = avg_hr_calc(patient_hr_db, 3, "2018-03-09 11:20:36")
-    expected = 65, True
+    answer = avg_hr_calc(id, stamp)
     assert answer == expected
 
 
 def test_total_hr_avg():
     from hr_sentinel_server import total_hr_avg
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
-    answer = total_hr_avg(patient_hr_db, 3)
-    expected = {"Average heart rate": 60}, True
+    answer = total_hr_avg(3)
+    expected = {"Average heart rate": 60}
     assert answer == expected
 
 
@@ -185,107 +161,43 @@ def test_is_tachycardic(result1, result2, expected):
 
 def test_heart_rate_list():
     from hr_sentinel_server import heart_rate_list
-    hr_db = [
-             {"patient_id": 1,
-              "heart_rate": [80, 90, 100, 120],
-              "timestamp": "string_recorded_datetime"},
-             {"patient_id": 2,
-              "heart_rate": [40, 50, 20],
-              "timestamp": "string_recorded_datetime"},
-             {"patient_id": 3,
-              "heart_rate": [60, 70, 50, 45],
-              "timestamp": "string_recorded_datetime"}]
-    answer = heart_rate_list(hr_db, 2)
-    expected = [40, 50, 20]
+    answer = heart_rate_list(2)
+    expected = [70, 80]
     assert answer == expected
 
 
 def test_patient_status_tachycardic():
     from hr_sentinel_server import patient_status
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": "2018-03-09 11:00:36"},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": "2020-07-10 1:30:50"},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": "2018-03-09 11:00:36"}]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = patient_status(patient_hr_db, patient_db, 1)
+    answer = patient_status(1)
     expected = {"heart_rate": 160,
                 "status": "tachycardic",
-                "timestamp": "2018-03-09 11:00:36"}
+                "timestamp": "2018-03-09 11:20:36"}
     assert answer == expected
 
 
 def test_patient_status_not_tachycardic():
     from hr_sentinel_server import patient_status
-    patient_hr_db = [
-                     {"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": "2018-03-09 11:00:36"},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": "2020-07-10 1:30:50"},
-                     {"patient_id": 3,
-                      "attending_username": "Smith.J",
-                      "patient_age": 32}
-                    ]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = patient_status(patient_hr_db, patient_db, 2)
+    answer = patient_status(2)
     expected = {"heart_rate": 80,
                 "status": "not tachycardic",
-                "timestamp": "2020-07-10 1:30:50"}
+                "timestamp": "2020-07-10 1:50:50"}
     assert answer == expected
 
 
 def test_attending_patients():
     from hr_sentinel_server import attending_patients
-    patient_hr_db = [{"patient_id": 1,
-                      "heart_rate": [80, 90, 160],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:10:36",
-                                    "2018-03-09 11:20:36"]},
-                     {"patient_id": 2,
-                      "heart_rate": [70, 80],
-                      "timestamp": ["2020-07-10 1:30:50",
-                                    "2020-07-10 1:50:50"]},
-                     {"patient_id": 3,
-                      "heart_rate": [50, 60, 70],
-                      "timestamp": ["2018-03-09 11:00:36",
-                                    "2018-03-09 11:20:36",
-                                    "2018-03-09 11:50:36"]}]
-    patient_db = [{"patient_id": 1,
-                   "attending_username": "Smith.J",
-                   "patient_age": 50},
-                  {"patient_id": 2,
-                   "attending_username": "Howard.B",
-                   "patient_age": 25},
-                  {"patient_id": 3,
-                   "attending_username": "Smith.J",
-                   "patient_age": 32}]
-    answer = attending_patients(patient_db, "Smith.J", patient_hr_db)
-    expected = True, [{"patient_id": 1, "last_heart_rate": 160,
-                       "last_time": "2018-03-09 11:20:36",
-                       "status": "tachycardic"},
-                      {"patient_id": 3, "last_heart_rate": 70,
-                       "last_time": "2018-03-09 11:50:36", "status":
-                       "not tachycardic"}]
+    answer = attending_patients("Smith.J")
+    expected = [{"patient_id": 1, "last_heart_rate": 160,
+                 "last_time": "2018-03-09 11:20:36",
+                 "status": "tachycardic"},
+                {"patient_id": 3, "last_heart_rate": 70,
+                 "last_time": "2018-03-09 11:50:36", "status":
+                 "not tachycardic"}]
     assert answer == expected
+
+
+# Checking to ensure answer is datetime object type
+def test_time_converter():
+    from hr_sentinel_server import time_converter
+    answer = time_converter("2018-03-09 11:05:36")
+    assert type(answer) == datetime.datetime
