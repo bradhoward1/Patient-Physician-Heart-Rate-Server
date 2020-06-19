@@ -28,7 +28,7 @@ Within this server, the following functions have been implemented:
 + `POST /api/heart_rate/interval_average`
 + `GET /api/patients/<attending_username>`
 
-To perform unit tests on this server file (located in 'test_hr_sentinel_server.py'), it was necessary to initialize a database that the server could post to and access information from. These "databases" are represented by three distinct lists. These lists are contained between lines 13 to 42. The server is currently ON with these lists commented out of the code, but the version of the server file that is listed in this repository has these lists included in the code. Comment these lines out if necessary.
+To perform unit tests on this server file (located in `test_hr_sentinel_server.py`), it was necessary to initialize a database that the server could post to and access information from. These "databases" are represented by three distinct lists. These lists are contained between lines 13 to 42. The server is currently ON with these lists commented out of the code, but the version of the server file that is listed in this repository has these lists included in the code. Comment these lines out if necessary.
 
 Furthermore, one more change was made to the server file within the virtual machine that is different than the server file within this repository. To actually access this server outside of the virtual machine, the following `host` parameter is passed to the Flask handler command:
 
