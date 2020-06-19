@@ -371,7 +371,7 @@ def add_patient_hr(patient_id, heart_rate):
         for patient, patient_name in zip(patient_hr_db, patient_db):
             if patient["patient_id"] != patient_id:
                 continue
-            elif patient["patient_id"] is patient_id:
+            elif patient["patient_id"] == patient_id:
                 patient["heart_rate"].append(heart_rate)
                 patient["timestamp"].append(string_recorded_datetime)
                 age = patient_name["patient_age"]
